@@ -1,25 +1,58 @@
-ï»¿#include <string>
+#include <string>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
+//ÁÖÀÇÇÒÁ¡: º¤ÅÍ¸¦ ¸Å°³º¯¼ö·Î ³Ñ±æ ¶§ °´Ã¼¸¦ ³Ñ±â´Â °ÍÀÌ±â ¶§¹®¿¡ ¹è¿­°ú Çò°¥¸®¸é ¾ÈµÊ. 
+//¹è¿­Àº ¹è¿­ÀÇ ÀÌ¸§ÀÌ Æ÷ÀÎÅÍ·Î, ÁÖ¼Ò°ªÀÌÁö¸¸, º¤ÅÍ´Â °´Ã¼ ±× ÀÚÃ¼ÀÌ±â ¶§¹®¿¡ &¸¦ »ç¿ëÇØ¼­ °´Ã¼ÀÇ ÁÖ¼Ò°ªÀ» ³Ñ°ÜÁà¾ßµÊ.
+void Swap(int& a, int& b) {
+    int tmp = a;
+    a = b;
+    b = tmp;
+}
+
+void QuickSort(vector<int>& sortArr, int left, int right) {         //Äü Á¤·Ä
+    if (left >= right) {
+        return;
+    }
+
+    int pivot = left;      //°¡Àå ¿À¸¥ÂÊ °ªÀÌ pivot
+    int low = left + 1;
+    int high = right;
+
+    while (low <= high) {       //low¿Í high°¡ ¾ù°¥¸±¶§±îÁö. ¾ù°¥¸®°í ³ª¸é pivot°ú high°¡ ¹Ù²ï´Âµ¥, ±×‹š pivotÀº º»ÀÎÀÇ Á¤·Ä ÈÄ ¾Ë¸ÂÀº À§Ä¡¸¦ Ã£Àº °ÍÀÓ.
+        while (low <= high && sortArr[low] <= sortArr[pivot]) {
+            low++;
+        }
+        while (high >= left + 1 && sortArr[pivot] <= sortArr[high]) {
+            high--;
+        }
+        if (low > high) {       //¾ù°¥¸² -> ÇÇº¿°ú high swap
+            Swap(sortArr[high], sortArr[pivot]);
+        }
+        else {      //¾ù°¥¸®Áö ¾ÊÀ½ -> low¿Í high swap
+            Swap(sortArr[low], sortArr[high]);
+        }
+    }
+    if (high > 0) {             //Á¤·ÄÇÒ ¹è¿­¿¡¼­ ¸Ç Ã³À½ °ªÀÌ °¡Àå ÀÛÀ» °æ¿ì high°¡ -1ÀÌ µÊ. ÀÌ °æ¿ì ¿¹¿ÜÃ³¸®
+        QuickSort(sortArr, left, high - 1);
+    }
+    QuickSort(sortArr, high + 1, right);
+}
 
 vector<int> solution(vector<int> array, vector<vector<int>> commands) {
-	vector<int> originarray = array;
-	vector<int> result;
-	for (int i = 0; i < commands.size(); i++)
-	{
-		//ì§€ìš°ê¸°
-		array = originarray;
-		array.erase(array.begin(),
-			array.begin() + commands[i][0] - 1);
-		temp = commands[i][1] - (commands[i][0] - 1);
-		array.erase(array.begin() + temp,
-			array.end());
-		//ì •ë ¬í•˜ê¸°
-		sort(array.begin(), array.end());
-		//í™•ì¸í•œ ê²°ê³¼ê°’ì„ ë²¡í„°ì— ìˆœì„œëŒ€ë¡œ ì €ì¥
-		result.push_back(array[commands[i][2] - 1]);
-	}
-	return result;
+    vector<int> answer;
+    int MinIdx = 0, MaxIdx = 0;
+    for (int i = 0; i < commands.size(); i++) {         //commandsÀÇ ÇàÀÇ ¼ö(Å×½ºÆ®ÄÉÀÌ½º °¹¼ö)¸¸Å­ ¹İº¹
+        MinIdx = commands[i][0] - 1;      //Á¤·Ä ½ÃÀÛÇÒ ÀÎµ¦½º
+        MaxIdx = commands[i][1] - 1;      //Á¤·Ä ³¡³¯ ÀÎµ¦½º
+        vector<int>sortArr(MaxIdx - MinIdx + 1);
+
+        for (int j = 0; j < MaxIdx - MinIdx + 1; j++) {
+            sortArr[j] = array[MinIdx + j];     //Á¤·ÄÇÒ ¹è¿­
+        }
+        QuickSort(sortArr, 0, sortArr.size() - 1);      //Á¤·Ä
+
+        answer.push_back(sortArr[commands[i][2] - 1]);      //commandsÀÇ ¼¼¹øÂ° °ªÀÌ Á¤·ÄÇÑ ¹è¿­¿¡¼­ Ã£À» °ª    
+    }
+    return answer;
 }
